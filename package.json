@@ -1,21 +1,25 @@
 {
-    "name": "airplay2",
-    "description": "Apple AirPlay client library for AppleTV",
-    "version": "0.1.4",
-    "author": "zfkun <zfkun@msn.com>",
-    "contributors": [],
-    "dependencies": {
-        "mdns": "https://github.com/zfkun/node_mdns/tarball/master",
-        "plist": "~0.4.3"
-    },
-    "keywords": [
-        "apple",
-        "mac",
-        "media",
-        "airplay",
-        "hls",
-        "ffmpeg"
-    ],
-    "main": "airplay.js",
-    "repository": "git://github.com/zfkun/node-airplay.git"
+  "name": "airplay2",
+  "description": "Apple AirPlay client library for AppleTV",
+  "version": "0.1.4",
+  "author": "zfkun <zfkun@msn.com>",
+  "contributors": [],
+  "bin": {
+    "airplay": "./bin/airplay"
+  },
+  "dependencies": {
+    "cli": "^0.6.5",
+    "mdns": "https://github.com/zfkun/node_mdns/tarball/master",
+    "plist": "~0.4.3"
+  },
+  "keywords": [
+    "apple",
+    "mac",
+    "media",
+    "airplay",
+    "hls",
+    "ffmpeg"
+  ],
+  "main": "airplay.js",
+  "repository": "git://github.com/zfkun/node-airplay.git"
 }

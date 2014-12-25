@@ -1,0 +1,57 @@
+#!/usr/bin/env node
+
+var cli = require('cli');
+var path = require('path');
+var fs = require('fs');
+var os = require('os');
+var airplay = require('../airplay');
+
+var startBrowser = function(videoURL) {
+    var browser = airplay.createBrowser();
+    browser.on('deviceOn', function(device) {
+        console.info(device.info.name);
+        device.play(videoURL, 0, function() {
+            console.info('video playing ...');
+        });
+    });
+    browser.start();
+};
+
+cli.setUsage('airplay [OPTIONS] file-or-url')
+
+cli.parse({
+    'port': ['p', 'Port to host the video', 7000]
+});
+
+cli.main(function(args, options){
+    var port = options.port ? options.port : 7000;
+    var file = args[0];
+
+    if (!file) {
+        this.error("Missing parameter: file");
+        return;
+    }
+    
+    if (!fs.existsSync(file)) {
+        this.error("File not found: ", file);
+        return;
+    }
+
+    if (file.match(/^http/)) {
+        startBrowser(file);
+
+    } else {
+        var tsDir = path.join(os.tmpdir(), 'airplay');
+        if (!fs.existsSync(tsDir)) {
+            fs.mkdirSync(tsDir);
+        }
+
+        // local video (by HLS)        
+        var hls = airplay.createHLS({out: tsDir});
+        hls.start(port);
+        hls.open(file, function(info) {
+            console.info('File hosted at ' + hls.getURI());
+            startBrowser(hls.getURI());
+        });
+    }
+});
