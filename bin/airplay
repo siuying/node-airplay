@@ -17,6 +17,19 @@ var startBrowser = function(videoURL) {
     browser.start();
 };
 
+var cleanupIfNeeded = function() {
+    var tsDir = path.join(os.tmpdir(), 'airplay');
+    if (!fs.existsSync(tsDir)) {
+        return;
+    }
+    fs.readdirSync(tsDir).forEach(function(file, index){
+        var curPath = tsDir + "/" + file;
+        if (curPath.match("\.ts$")) {
+            fs.unlinkSync(curPath);
+        }
+    });
+}
+
 cli.setUsage('airplay [OPTIONS] file-or-url')
 
 cli.parse({
@@ -41,12 +54,17 @@ cli.main(function(args, options){
         startBrowser(file);
 
     } else {
+        // local video (by HLS)
+
+        // cleanup and create temp folder
         var tsDir = path.join(os.tmpdir(), 'airplay');
-        if (!fs.existsSync(tsDir)) {
+        if (fs.existsSync(tsDir)) {
+            cleanupIfNeeded();
+        } else {
             fs.mkdirSync(tsDir);
         }
 
-        // local video (by HLS)        
+        // Start HLS and start airplay browser
         var hls = airplay.createHLS({out: tsDir});
         hls.start(port);
         hls.open(file, function(info) {
@@ -55,3 +73,16 @@ cli.main(function(args, options){
         });
     }
 });
+
+var exitHandler = function(options) {
+    cleanupIfNeeded();
+    if (options.exit) {
+        process.exit();
+    }
+}
+
+//do something when app is closing
+process.on('exit', exitHandler.bind(null, {}));
+
+//catches ctrl+c event
+process.on('SIGINT', exitHandler.bind(null, {exit:true}));
